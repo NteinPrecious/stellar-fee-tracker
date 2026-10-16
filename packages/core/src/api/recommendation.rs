@@ -125,15 +125,28 @@ pub async fn recommend_history(
             .await
             .map_err(|err| AppError::Unknown(format!("Failed to query recommendations: {}", err)))?
             .into_iter()
-            .map(|rec| RecommendHistoryEntry {
-                id: rec.id.unwrap_or_default(),
-                requested_at: chrono::DateTime::parse_from_rfc3339(&rec.computed_at)
-                    .map(|ts| ts.with_timezone(&chrono::Utc))
-                    .unwrap_or_else(|_| chrono::Utc::now()),
-                target_ledgers: rec.target_ledgers as u32,
-                urgency: rec.percentile_basis,
-                recommended_fee: rec.recommended_fee as u64,
-                actual_confirmed: None,
+            .filter_map(|rec| {
+                // Skip rows whose timestamp cannot be parsed rather than
+                // reporting them as if they were requested "now".
+                let requested_at = match chrono::DateTime::parse_from_rfc3339(&rec.computed_at) {
+                    Ok(ts) => ts.with_timezone(&chrono::Utc),
+                    Err(err) => {
+                        tracing::warn!(
+                            "Skipping recommendation {:?} with invalid computed_at '{}': {}",
+                            rec.id,
+                            rec.computed_at,
+                            err
+                        );
+                        return None;
+                    }
+                };
+                Some(RecommendHistoryEntry {
+                    id: rec.id.unwrap_or_default(),
+                    requested_at,
+                    target_ledgers: rec.target_ledgers as u32,
+                    percentile_basis: rec.percentile_basis,
+                    recommended_fee: rec.recommended_fee as u64,
+                })
             })
             .collect(),
         None => vec![],

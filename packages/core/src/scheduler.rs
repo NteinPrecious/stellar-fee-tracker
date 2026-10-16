@@ -173,6 +173,16 @@ async fn poll_once(
             Ok(_) => {}
             Err(err) => tracing::warn!("Failed to prune old fee points: {}", err),
         }
+        match repo.prune_recommendations_older_than(cutoff).await {
+            Ok(n) if n > 0 => tracing::debug!("Pruned {} old recommendations from DB", n),
+            Ok(_) => {}
+            Err(err) => tracing::warn!("Failed to prune old recommendations: {}", err),
+        }
+        match repo.prune_alert_events_older_than(cutoff).await {
+            Ok(n) if n > 0 => tracing::debug!("Pruned {} old alert events from DB", n),
+            Ok(_) => {}
+            Err(err) => tracing::warn!("Failed to prune old alert events: {}", err),
+        }
     }
 }
 

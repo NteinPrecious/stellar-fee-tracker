@@ -79,9 +79,10 @@ pub struct RecommendHistoryEntry {
     pub id: i64,
     pub requested_at: DateTime<Utc>,
     pub target_ledgers: u32,
-    pub urgency: String,
+    /// Percentile the recommendation was based on (e.g. `p50`). The urgency
+    /// of the original request is not persisted.
+    pub percentile_basis: String,
     pub recommended_fee: u64,
-    pub actual_confirmed: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

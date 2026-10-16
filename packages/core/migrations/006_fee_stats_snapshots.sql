@@ -1,4 +1,4 @@
--- Migration 004: Ledger-keyed fee_stats snapshots (Issue #550).
+-- Migration 006: Ledger-keyed fee_stats snapshots (Issue #550).
 --
 -- Stores one aggregate snapshot per Horizon ledger, sourced from the
 -- `/fee_stats` endpoint instead of sampled /transactions data.

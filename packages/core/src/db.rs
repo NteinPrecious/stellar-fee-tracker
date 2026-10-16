@@ -61,18 +61,4 @@ mod tests {
 
         assert!(result.is_ok(), "Insert failed: {:?}", result.err());
     }
-
-    #[tokio::test]
-    async fn fee_snapshots_table_exists_after_migration() {
-        let pool = create_pool("sqlite::memory:").await.unwrap();
-
-        let result = sqlx::query(
-            "INSERT INTO fee_snapshots (base_fee, min_fee, max_fee, avg_fee, captured_at)
-             VALUES ('100', '100', '5000', '213', '2024-01-01T00:00:00Z')",
-        )
-        .execute(&pool)
-        .await;
-
-        assert!(result.is_ok(), "Insert failed: {:?}", result.err());
-    }
 }

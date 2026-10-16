@@ -194,6 +194,34 @@ impl FeeRepository {
         Ok(result.rows_affected())
     }
 
+    /// Delete persisted recommendations computed before `cutoff`.
+    /// Returns the number of rows removed.
+    pub async fn prune_recommendations_older_than(
+        &self,
+        cutoff: DateTime<Utc>,
+    ) -> Result<u64, sqlx::Error> {
+        let result = sqlx::query("DELETE FROM recommendations WHERE computed_at < ?")
+            .bind(cutoff.to_rfc3339())
+            .execute(&self.pool)
+            .await?;
+
+        Ok(result.rows_affected())
+    }
+
+    /// Delete alert events triggered before `cutoff`.
+    /// Returns the number of rows removed.
+    pub async fn prune_alert_events_older_than(
+        &self,
+        cutoff: DateTime<Utc>,
+    ) -> Result<u64, sqlx::Error> {
+        let result = sqlx::query("DELETE FROM alert_events WHERE triggered_at < ?")
+            .bind(cutoff.to_rfc3339())
+            .execute(&self.pool)
+            .await?;
+
+        Ok(result.rows_affected())
+    }
+
     // ---- Fee stats snapshots (Issue #550) ----
 
     /// Idempotently persist a `/fee_stats` snapshot.

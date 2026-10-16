@@ -1,3 +1,6 @@
+-- Migration 004: Recommendations log
+-- Persists each computed fee recommendation and the inputs it was based on.
+
 CREATE TABLE IF NOT EXISTS recommendations (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
   recommended_fee   INTEGER NOT NULL,
